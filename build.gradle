@@ -1,0 +1,40 @@
+apply plugin: 'java'
+
+sourceCompatibility = 1.7
+version = '1.0'
+
+repositories {
+    mavenCentral()
+}
+
+jar {
+    exclude('**/run.bat')
+    manifest {
+        attributes 'Main-Class': 'config.Main'
+    }
+}
+
+task release << {
+
+    def releaseDir = 'build/release'
+
+    copy {
+        from 'build/libs'
+        into releaseDir
+    }
+
+    copy {
+        from ("config/src/") {
+            include "$environment/**"
+        }
+        into releaseDir + '/conf'
+    }
+    copy {
+        from ('src/main/resources/run.bat') {
+            filter {
+                line -> line.replaceAll("@config.file@",  "$environment/SystemConfiguration.java")
+            }
+        }
+        into releaseDir
+    }
+}
