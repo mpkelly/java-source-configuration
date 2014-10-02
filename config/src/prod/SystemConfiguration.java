@@ -8,4 +8,8 @@ public class SystemConfiguration extends DefaultSystemConfiguration {
     public int getPort() {
         return 9999;
     }
+
+    public static void main(String[] args) {
+        new SystemConfiguration().sanityCheck();
+    }
 }

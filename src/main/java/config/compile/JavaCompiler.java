@@ -1,8 +1,6 @@
 package config.compile;
 
-import config.SystemConfiguration;
-
-import javax.tools.*;
+import javax.tools.ToolProvider;
 import java.io.File;
 import java.net.URL;
 import java.net.URLClassLoader;
@@ -14,15 +12,18 @@ public class JavaCompiler {
     public JavaCompiler(File sourceRoot) {
         this.sourceRoot = sourceRoot;
         this.compiler = ToolProvider.getSystemJavaCompiler();
+        if (compiler == null) {
+            throw new IllegalStateException("javax.tools.JavaCompiler is not available. Ensure you are using the JDK java.exe or have tools.jar on the classpath");
+        }
     }
 
     @SuppressWarnings("unchecked")
-    public SystemConfiguration compile(JavaSourceFile configFile) throws Exception {
+    public <T> T compile(JavaSourceFile configFile) throws Exception {
         compiler.run(null, null, null, configFile.path());
 
         URLClassLoader classLoader = URLClassLoader.newInstance(new URL[] { sourceRoot.toURI().toURL() });
         Class<?> clazz = Class.forName(configFile.binaryName(), true, classLoader);
 
-        return (SystemConfiguration) clazz.newInstance();
+        return (T) clazz.newInstance();
     }
 }
